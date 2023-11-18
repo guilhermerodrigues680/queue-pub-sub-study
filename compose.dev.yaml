@@ -2,14 +2,18 @@ version: "3.8"
 
 services:
   main:
-    image: ghcr.io/guilhermerodrigues680/queue-pub-sub-study:main-main
+    build:
+      context: src/app/
+      dockerfile: Dockerfile.main
     environment:
       - REDIS_ADDR=redis:6379
       - REDIS_PASSWORD=mypassword
       - REDIS_DB=2
 
   publisher:
-    image: ghcr.io/guilhermerodrigues680/queue-pub-sub-study:publisher-main
+    build:
+      context: src/app/
+      dockerfile: Dockerfile.publisher
     environment:
       - REDIS_ADDR=redis:6379
       - REDIS_PASSWORD=mypassword
