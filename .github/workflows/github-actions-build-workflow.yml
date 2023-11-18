@@ -1,0 +1,83 @@
+# https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
+# https://github.com/docker/login-action
+# https://github.com/docker/metadata-action
+# https://github.com/docker/build-push-action
+
+name: Build Workflow
+run-name: Executable Build Workflow - Acionado por ${{ github.actor }} 🚀
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Imprimir informações do job
+        run: |
+          echo "🎉 O job foi acionado automaticamente por um evento ${{ github.event_name }}"
+          echo "🐧 O job está sendo executado em um servidor ${{ runner.os }}"
+          echo "🔎 Branch ${{ github.ref }} e Repositório ${{ github.repository }}"
+  
+  build-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=main-{{branch}}-{{sha}}
+            type=raw,value=main-{{branch}}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:src/app"
+          file: ./Dockerfile.main
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  
+  build-publisher:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=publisher-{{branch}}-{{sha}}
+            type=raw,value=publisher-{{branch}}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:src/app"
+          file: ./Dockerfile.publisher
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
