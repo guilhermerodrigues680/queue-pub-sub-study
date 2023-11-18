@@ -1,0 +1,12 @@
+/.git
+/.vscode
+/.dockerignore
+/.gitignore
+
+# Arquivo .gitignore:
+
+/logs/
+__debug_bin*
+
+*.local
+*.local.*
