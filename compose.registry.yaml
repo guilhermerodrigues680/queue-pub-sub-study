@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  main:
+    image: ghcr.io/guilhermerodrigues680/queue-pub-sub-study:main-main
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=mypassword
+      - REDIS_DB=2
+
+  publisher:
+    image: ghcr.io/guilhermerodrigues680/queue-pub-sub-study:publisher-main
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=mypassword
+      - REDIS_DB=2
+
+  # foo:
+  #   image: busybox
+  #   environment:
+  #     - COMPOSE_PROJECT_NAME
+  #   command: echo "I'm running ${COMPOSE_PROJECT_NAME}"
+
+  redis:
+    image: redis:7.0.5-alpine3.16
+    volumes:
+      - redisdata:/data
+    ports:
+      - "7051:6379"
+    command:
+      - redis-server
+      - --requirepass 'mypassword'
+      - --save 60 1
+      - --loglevel warning
+  #
+  # redis/redis-stack
+  # redislabs/redisinsight
+
+volumes:
+  redisdata:
